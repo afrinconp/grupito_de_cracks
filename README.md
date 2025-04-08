@@ -1,2 +1,2 @@
 # project_images
-This respository is used for developing a project which is able to identify images using deep learning techniques
+This repository is used to develop a project capable of identifying images using deep learning techniques.
