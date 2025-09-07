@@ -61,7 +61,7 @@ def generate_recipes(food_name: str) -> List[Dict[str, Any]] | Dict[str, str]:
         return {"error": f"An unexpected error occurred during recipe generation: {e}"}
 
 
-def identify_food_and_suggest_recipes(uploaded_file_bytes: BytesIO) -> List[Dict[str, Any]] | Dict[str, str]:
+def identify_food(uploaded_file_bytes: BytesIO) -> List[Dict[str, Any]] | Dict[str, str]:
     """
     Identifies food in an image using Gemini Vision and then suggests recipes.
 
@@ -118,15 +118,62 @@ def identify_food_and_suggest_recipes(uploaded_file_bytes: BytesIO) -> List[Dict
         # Ensure identified_foods is always a list for consistent processing
         if not isinstance(identified_foods, list):
             identified_foods = [identified_foods]
-
-        # Generate recipes for each identified food
-        for food_item in identified_foods:
-            food_name = food_item.get("food_name")
-            if food_name and food_name != "No food detected":
-                recipes = generate_recipes(food_name)
-                food_item["suggested_recipes"] = recipes
-        
         return identified_foods
 
     except Exception as e:
         return {"error": f"An unexpected error occurred during food identification: {e}"}
+
+def suggest_recipes_for_food(food_name: list) -> str:
+    """
+    Suggests recipes for a given food name.
+
+    Args:
+        food_name (str): The name of the food item.
+
+    Returns:
+        list: A list of dictionaries, each representing a recipe.
+              Returns a dictionary with an "error" key if an issue occurs.
+    """
+    """
+    Generates 5 recipe suggestions for a given food item using the Gemini text model.
+
+    Args:
+        food_name (str): The name of the food for which to generate recipes.
+
+    Returns:
+        list: A list of dictionaries, each representing a recipe.
+              Returns a dictionary with an "error" key if an issue occurs.
+    """
+    llm = _initialize_llm("gemini-2.0-flash")
+    if not llm:
+        return {"error": "Failed to initialize Gemini model for recipe generation."}
+    print(food_name)
+
+    prompt_text = f"""
+    You are a culinary expert. Based on the following list of ingredients "{str(food_name)}", suggest 5 unique and appealing recipes that one person can cook.
+    
+    Respond ONLY with a JSON array of objects. Each object should have the following keys:
+    - "recipe_name": The name of the recipe.
+    - "description": A brief, one-sentence description of the recipe.
+    - "key_ingredients": A list of 3-5 essential ingredients for the recipe.
+
+    Do not include any text, markdown formatting, or explanations outside of the JSON object.
+    """
+
+    message = HumanMessage(content=prompt_text)
+
+    print(f"🍳 Generating recipes for {food_name}...")
+    try:
+        response = llm.invoke([message])
+        parsed_response = parse_json_response(response.content)
+
+        if parsed_response is None:
+            return {
+                "error": "Failed to parse JSON response for recipes from the model.",
+                "raw_response": response.content
+            }
+        return parsed_response
+
+    except Exception as e:
+        return {"error": f"An unexpected error occurred during recipe generation: {e}"}
+    

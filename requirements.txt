@@ -1,5 +1,5 @@
-streamlit
-langchain-google-genai
-python-dotenv
-Pillow
-langchain-core
+streamlit==1.49.1
+langchain-google-genai==2.1.10
+python-dotenv==1.1.1
+Pillow==11.3.0
+langchain-core==0.3.75
