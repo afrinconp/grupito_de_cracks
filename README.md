@@ -22,7 +22,7 @@ The application is built with Streamlit for the user interface and leverages the
 - **Secure API Key Management:** Uses environment variables for API key configuration, with a convenient input in the Streamlit sidebar.
 
 ## ⚙️ Technology Stack
-
+- **Python:** 3.12.7
 - **Frontend:** [Streamlit](https://streamlit.io/)
 - **AI Model:** [Google Gemini Pro Vision & Gemini 2.0 Flash](https://deepmind.google/technologies/gemini/)
 - **AI Framework:** [LangChain](https://www.langchain.com/) (`langchain-google-genai`)
